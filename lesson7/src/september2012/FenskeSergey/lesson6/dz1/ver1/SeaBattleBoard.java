@@ -9,6 +9,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.*;
+
 
 import java.awt.Image;
 import java.awt.event.KeyEvent;
@@ -79,8 +81,8 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
     public void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
             this.g2d = (Graphics2D)graphics;
-            g2d.drawString("A        B       C       D       E       F        G       H        I        J", 65, 50);
-        	g2d.drawString("A        B       C       D       E       F        G       H        I        J", 485, 50);
+            g2d.drawString("A        Б       В       Г       Д       Е        Ж       З        И        К", 65, 50);
+        	g2d.drawString("A        Б       В       Г       Д       Е        Ж       З        И        К", 485, 50);
         	for (int i=1; i < 11 ; i++) {
         		g2d.drawString(String.valueOf(i), 40, (45 + i * 30));
         		g2d.drawString(String.valueOf(i), 455, (45 + i * 30));
@@ -357,12 +359,13 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    	//System.out.println("мышь забежала");
+    
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    	//System.out.println("мышь выбежала");
     }
 
 

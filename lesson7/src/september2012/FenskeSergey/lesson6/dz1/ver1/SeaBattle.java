@@ -74,6 +74,8 @@ public class SeaBattle extends JFrame {
         menuBar.add(menuFile);
         menuBar.add(menuHelp);
         
+        SeaBattleWindowsComponents.getStatusBar(board);
+        
         setContentPane(board);
         setJMenuBar(menuBar);
         setVisible(true);
