@@ -41,7 +41,7 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
     Cell[][] userFieldMap;
     Cell[][] computerFieldMap;
     private Graphics2D g2d;
-   gsdgfsdgfsdgbdsg
+  
     public SeaBattleBoard(JFrame frame) {
     	this.frame = frame;
     	
