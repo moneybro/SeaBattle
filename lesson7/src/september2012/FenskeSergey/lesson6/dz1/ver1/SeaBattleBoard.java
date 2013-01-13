@@ -16,10 +16,11 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.Random;
 
 
-public class SeaBattleBoard extends JPanel implements MouseListener {
+public class SeaBattleBoard extends JPanel implements MouseListener, MouseMotionListener {
 	private JFrame frame;
     public static final int PIXEL_MULTIPLICATOR = 30;
     public static final int X_PIXEL_SHIFT = 415;
@@ -30,6 +31,8 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
 
     public Cell[][] internalUserFieldMap;
     public Cell[][] internalComputerFieldMap;
+    public boolean enemyField = true;
+    public boolean isGameOver = false;
     
     private Image fieldImage;
     private Image shipImage;
@@ -64,7 +67,7 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
         cellOfFieldImage = cellOfFieldIcon.getImage();
         
         addMouseListener(this);
-        
+        addMouseMotionListener(this);
         generateFileds();
     }
     
@@ -126,6 +129,7 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
             			}
             		} else {
             			g2d.drawImage(shipImage, convertXtoPixels(j, true), convertYtoPixels(i, true), null);
+            			//g2d.drawImage(cellOfFieldImage, convertXtoPixels(j, true), convertYtoPixels(i, true), null);
             		}
                 } else if(cell2.isFired()) {
                 	g2d.drawImage(cellOfFieldImage, convertXtoPixels(j, true), convertYtoPixels(i, true), null);
@@ -191,15 +195,15 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
     	int coordinateFieldX = convertPixelsToX(coordinatePixX);
     	int coordinateFieldY = convertPixelsToY(coordinatePixY);
     	
-    	Cell cell = userFieldMap[coordinateFieldX][coordinateFieldY];
-    	Cell cell2 = computerFieldMap[coordinateFieldX][coordinateFieldY];
     	Cell variableCell = null;
     	Ship variableShip;
     	
     	if(isPixelsFromComputerField(coordinatePixX)) {
     		variableCell = computerFieldMap[coordinateFieldX][coordinateFieldY];
+    		enemyField = true;
     	} else {
     		variableCell = userFieldMap[coordinateFieldX][coordinateFieldY];
+    		enemyField = false;
     	}
     	
     	variableShip = variableCell.getShipType();
@@ -208,18 +212,13 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
     				coordinateFieldY >= 0 && coordinateFieldY < 10) {
     			if(variableCell.isShip()) {
     				g2d.drawImage(fireImage, coordinatePixX, coordinatePixY, null);
-    				System.out.println("количество палуб = " + variableShip.getShipSize());
-    	    		System.out.println(variableShip);
-    	    			if(variableCell.isFired()) {
+    						SeaBattleWindowsComponents.updateLog("x=" + coordinateFieldX +
+    	    	    				" " + "y=" + coordinateFieldY + " " + "\n", enemyField);
     	    				variableCell.setWasFired();
-    	    				System.out.println("убитая палуба");
-    	    				checkTheShipIsLife(coordinatePixX, coordinatePixY, variableShip);
-    	    			} else {
-    	    				System.out.println("ранен");
-    	                	variableCell.setWasFired();
     	                	checkTheShipIsLife(coordinatePixX, coordinatePixY, variableShip);
-    	    			}
-    			} else {
+    	    	} else {
+    				SeaBattleWindowsComponents.updateLog("x=" + coordinateFieldX +
+    	    				" " + "y=" + coordinateFieldY + " " + "\n", enemyField);
     				g2d.drawImage(missImage, coordinatePixX, coordinatePixY, null);
     			}
     			variableCell.setWasFired();
@@ -228,15 +227,18 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
     }
     
     private void checkTheShipIsLife(int x, int y, Ship ship) {
-    	int coordinateFieldX = convertPixelsToX(x);
-    	int coordinateFieldY = convertPixelsToY(y);
+    	
+    	
+    	int flag = 0;
     	int counterOfShipBoards;
     	Cell[][] variableCell;
     	
     	if(isPixelsFromComputerField(x)) {
     		variableCell = computerFieldMap;
+    		enemyField = true;
     	} else {
     		variableCell = userFieldMap;
+    		enemyField = false;
     	}
     	
     	counterOfShipBoards = ship.getShipSize();
@@ -244,29 +246,63 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
     	for(int i=0; i < Field.FIELD_COL_SIZE; i++) {
             for(int j=0; j < Field.FIELD_ROW_SIZE; j++) {
             	if (variableCell[i][j].isShip()) {
-            		
-					if (ship.equals(variableCell[i][j].getShipType())) {
+            		if (ship.equals(variableCell[i][j].getShipType())) {
             			if(variableCell[i][j].isFired()) {
             				counterOfShipBoards--;
             				if(counterOfShipBoards == 0) {
-            					System.out.println("убит");
+            					SeaBattleWindowsComponents.updateLog("убит\n", enemyField);
             					ship.setIsKilled();
+            					setFiredCellsAroundKiledShip(ship, enemyField);
             					printBattleField();
-            					//System.out.println(ship.isKilled());
-            					System.out.println(variableCell[i][j].getShipType().isKilled());
-            					isGameOver();
-            				}
-            			} else {
-            			//System.out.print("x=" + i + " " + "y=" + j + " ");
-            			//System.out.println(counterOfShipBoards);
+            					GameOver();
+            				} 
+            				} else {
+        						if (flag < 1 && !ship.isKilled())
+        						SeaBattleWindowsComponents.updateLog("ранен\n", enemyField);
+        					flag++;
             			}
             		}
-            	}
+				}
             }
     	}
     }
     
-    private void isGameOver() {
+    private void setFiredCellsAroundKiledShip (Ship ship, boolean enemyField) {
+    	
+    	Cell[][] variableCell;
+    	if(enemyField) {
+    		variableCell = computerFieldMap;
+    	} else {
+    		variableCell = userFieldMap;
+    	}
+    	
+    	int x = ship.getX();
+    	int y = ship.getY();
+    	int rotation = ship.getRotation();
+    	int boatSize = ship.getShipSize();
+    	//System.out.print(ship + " " + x + "," + y + " " + "rot " + rotation + "  size " + boatSize);
+    	
+    	int cx,cy; // координаты обследуемого пространства
+		int i,j;   // переменные размера обследыемого пространства
+		
+		// положения корабля всего 2, поэтому проверяем одно условие, по else присваиваются 
+		// другие значения
+		if (rotation == 1) {
+			i = boatSize;
+			j = 1;
+		} else {
+			i = 1;
+			j = boatSize;
+		}
+		//System.out.println(" i=" + i + " j=" + j);
+		for(cx = -1; cx <= i; cx++)
+			for(cy = -1; cy <= j;cy++) {
+				if ((x+cx)>=0 & (x+cx)<=9 & (y+cy)>=0 & (y+cy)<=9) 
+						variableCell[x + cx][y + cy].setWasFired();
+			}
+    }
+    
+    private void GameOver() {
     	int allShipComputerBoardCounter = 20;
     	int allShipUserBoardCounter = 20;
     	
@@ -278,36 +314,50 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
             		if(cell2.isFired()) {
             			allShipComputerBoardCounter--;
             			if(allShipComputerBoardCounter == 0) {
-            				System.out.println("Поздравляю, Вы победили!!!");
-            				System.out.println("Игра окончена");
-            				
-            	                Object[] options = {"Да", "Нет"};
-            	                int result = JOptionPane.showOptionDialog(frame, "Хотите сыграть еще раз ?", "Вы выиграли",
-            	                        JOptionPane.YES_NO_CANCEL_OPTION,
+            				isGameOver = true;
+            				Object[] options = {"Да", "Нет"};
+            	                int result = JOptionPane.showOptionDialog(frame, "Вы выиграли!!!\nХотите сыграть еще раз ?", "Игра окончена",
+            	                		JOptionPane.YES_NO_CANCEL_OPTION,
             	                        JOptionPane.QUESTION_MESSAGE,
             	                        null,
             	                        options,
             	                        options[1]);
 
             	                if(result == 0) {
+            	                	isGameOver = false;
             	                	generateFileds();
             	                	printBattleField();
+            	                	SeaBattleWindowsComponents.clearLog();
             	                }
             	                
             	                if(result == 1) {
             	                	System.exit(0);
             	                }
-            	            
-            				//return;
-            			}
+            	        }
             		}
             	}
             	if (cell.isShip()) {
             		if(cell.isFired()) {
             			allShipUserBoardCounter--;
             			if(allShipUserBoardCounter == 0) {
-            				System.out.println("Я победил");
-            				System.out.println("Игра окончена");
+            				Object[] options = {"Да", "Нет"};
+        	                int result = JOptionPane.showOptionDialog(frame, "Я выиграл!!!\nХотите сыграть еще раз ?", "Игра окончена",
+        	                		JOptionPane.YES_NO_CANCEL_OPTION,
+        	                        JOptionPane.QUESTION_MESSAGE,
+        	                        null,
+        	                        options,
+        	                        options[1]);
+
+        	                if(result == 0) {
+        	                	generateFileds();
+        	                	printBattleField();
+        	                	SeaBattleWindowsComponents.clearLog();
+        	                }
+        	                
+        	                if(result == 1) {
+        	                	System.exit(0);
+        	                }
+            				
             				return;
             			}
             		}
@@ -322,30 +372,36 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
  	}
     
     private void computerShoot() {
-    	int x = getRandomCoordinate();
-    	int y = getRandomCoordinate();
-    	Cell cell = userFieldMap[x][y];
-    	if(!cell.isFired()) {
-    	shooting (convertXtoPixels(x, false),convertYtoPixels(y, false));
-    	System.out.print("x=" + x + " " + "y=" + y + " ");
-		System.out.println(convertXtoPixels(x, false) + " " + convertXtoPixels(y, false));
-    	} else {
-    		computerShoot();
+    	if (!isGameOver) {
+	    	int x = getRandomCoordinate();
+	    	int y = getRandomCoordinate();
+	    	Cell cell = userFieldMap[x][y];
+	    	if(!cell.isFired()) {
+	    	shooting (convertXtoPixels(x, false),convertYtoPixels(y, false));
+	    	} else {
+	    		computerShoot();
+	    	}
     	}
     }
     
     @Override
     public void mouseClicked(MouseEvent event) {
+    	
     	if(isPixelsFromComputerField(event.getX())) {
     		if (convertPixelsToX(event.getX()) >= 0 && convertPixelsToX(event.getX()) < 10 &&
     			convertPixelsToY(event.getY()) >= 0 && convertPixelsToY(event.getY()) < 10) {
-    		shooting (event.getX(),event.getY());
-    		computerShoot();
+    			Cell cell2 = computerFieldMap[convertPixelsToX(event.getX())][convertPixelsToY(event.getY())];
+    				if(!cell2.isFired()) {
+    					shooting(event.getX(),event.getY());
+    					computerShoot();
+    				}
     		} else {
-    			System.out.println("Мимо поля, попробуй еще раз");
+    			SeaBattleWindowsComponents.showAlarmMessage("Мимо поля, попробуй еще раз");
+    			//System.out.println("Мимо поля, попробуй еще раз");
     		}
     	} else {
-			System.out.println("Мимо поля, попробуй еще раз");
+    		SeaBattleWindowsComponents.showAlarmMessage("Мимо поля, попробуй еще раз");
+			//System.out.println("Мимо поля, попробуй еще раз");
 		}
     }
 
@@ -360,7 +416,6 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
     @Override
     public void mouseEntered(MouseEvent e) {
     	//System.out.println("мышь забежала");
-    
     }
 
     @Override
@@ -372,5 +427,17 @@ public class SeaBattleBoard extends JPanel implements MouseListener {
 	public void setJMenuBar(JMenuBar menubar) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		SeaBattleWindowsComponents.setXCoordinate(e.getX(),convertPixelsToX(e.getX()));
+		SeaBattleWindowsComponents.setYCoordinate(e.getY(),convertPixelsToY(e.getY()));
 	}
 }

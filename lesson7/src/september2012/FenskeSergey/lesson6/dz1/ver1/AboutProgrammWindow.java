@@ -11,13 +11,11 @@ public class AboutProgrammWindow implements ActionListener, MouseListener {  // 
     private JFrame frame;
 
     public void actionPerformed(ActionEvent e) {
-	//ЗАКРЫТИЕ ОКНА   // TODO ? это не доделано ?
-        frame.dispose();  // TODO - закрыть можно через этот метод, только передавать его нужно через "ж"
+	    frame.dispose();
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-    	//ЗАКРЫТИЕ ОКНА // TODO ? это не доделано ?
     }
 
     @Override
@@ -64,18 +62,14 @@ public class AboutProgrammWindow implements ActionListener, MouseListener {  // 
 	public static void createAndShowGUI() {
         JFrame frame = new JFrame(aboutGameText);
 
-        AboutProgrammWindow swingExample = new AboutProgrammWindow();
-        Component contents = swingExample.createComponents(frame);
+        AboutProgrammWindow aboutProgrWin = new AboutProgrammWindow();
+        Component contents = aboutProgrWin.createComponents(frame);
         frame.getContentPane().add(contents, BorderLayout.CENTER);
 
         frame.pack();
         frame.setVisible(true);
     }
 	
-	
-	// TODO лишняя "пустота"
-
-
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override

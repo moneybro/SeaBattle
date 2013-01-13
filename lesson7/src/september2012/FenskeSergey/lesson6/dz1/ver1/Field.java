@@ -107,7 +107,7 @@ public class Field {
 				int y1 = calculateYCoordinate(x,y,rotation);
 				if ((x1!=10)&(y1!=10))
 					if(!shipInPlace(x,y,rotation,Ship.CRUISER_SIZE)) {
-					addCruiser(x,y,x1,y1);
+					addCruiser(x,y,x1,y1,rotation);
 					iteration++;
 					}
             }
@@ -128,7 +128,7 @@ public class Field {
 				int y2 = calculateYCoordinate(x1,y1,rotation);
 				if ((x1!=10)&(y1!=10)&(x2!=10)&(y2!=10))
 					if(!shipInPlace(x,y,rotation,Ship.DESTROYER_SIZE)) {
-					addDestroyer(x,y,x1,y1,x2,y2);
+					addDestroyer(x,y,x1,y1,x2,y2,rotation);
 					iteration++;
 					}
             }
@@ -150,7 +150,7 @@ public class Field {
 				int y3 = calculateYCoordinate(x2,y2,rotation);
 				if ((x1!=10)&(y1!=10)&(x2!=10)&(y2!=10)&(x3!=10)&(y3!=10))
 					if(!shipInPlace(x,y,rotation,Ship.BATTLESHIP_SIZE)) {
-					addBattleship(x,y,x1,y1,x2,y2,x3,y3);
+					addBattleship(x,y,x1,y1,x2,y2,x3,y3,rotation);
 					iteration++;
 					}
             }
@@ -158,24 +158,28 @@ public class Field {
      	
      	public void addPatrolBoat(int x,int y) {
      	    PatrolBoat p1 = new PatrolBoat(x, y);
-     		field[x][y] = p1.cells[0];
+     	    p1.setshipPlacement(x,y,1);
+     	    field[x][y] = p1.cells[0];
      	}
      	
-     	public void addCruiser(int x1,int y1,int x2,int y2) {
+     	public void addCruiser(int x1,int y1,int x2,int y2, int rotation) {
     		Cruiser cr1 = new Cruiser (x1, y1, x2, y2);
-        	field[x1][y1] = cr1.cells[0];
+    		cr1.setshipPlacement(x1,y1,rotation);
+    		field[x1][y1] = cr1.cells[0];
         	field[x2][y2] = cr1.cells[1];
     	}
      	
-     	public void addDestroyer(int x1,int y1,int x2,int y2,int x3,int y3) {
+     	public void addDestroyer(int x1,int y1,int x2,int y2,int x3,int y3, int rotation) {
      		Destroyer dr1 = new Destroyer (x1, y1, x2, y2, x3, y3);
+     		dr1.setshipPlacement(x1,y1,rotation);
         	field[x1][y1] = dr1.cells[0];
         	field[x2][y2] = dr1.cells[1];
         	field[x3][y3] = dr1.cells[2];
     	}
     
-     	public void addBattleship(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4) {
+     	public void addBattleship(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4, int rotation) {
      		Battleship bs1 = new Battleship (x1, y1, x2, y2, x3, y3, x4, y4);
+     		bs1.setshipPlacement(x1,y1,rotation);
         	field[x1][y1] = bs1.cells[0];
         	field[x2][y2] = bs1.cells[1];
         	field[x3][y3] = bs1.cells[2];

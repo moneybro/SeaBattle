@@ -10,6 +10,7 @@ public class Ship {
     public static final int BATTLESHIP_SIZE = 4;
     
     public boolean isKilled = false;
+    public int x,y,rotation;
 
     protected Cell[] cells;
     
@@ -23,6 +24,24 @@ public class Ship {
     
     public boolean isKilled() {
     	return isKilled;
+    }
+    
+    public void setshipPlacement(int x, int y, int rotation) {
+    	this.x = x;
+    	this.y = y;
+    	this.rotation = rotation;
+    	//System.out.println(x + "," + y + " " + "rot " + rotation + "  size " + getShipSize());
+    }
+    
+    public int getX() {
+    	return x;
+    }
+    public int getY() {
+    	return y;
+    }
+    
+    public int getRotation() {
+    	return rotation;
     }
     
     }

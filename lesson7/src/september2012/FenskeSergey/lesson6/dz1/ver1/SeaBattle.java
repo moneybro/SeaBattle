@@ -18,10 +18,11 @@ public class SeaBattle extends JFrame {
         add(board);
         setTitle("SeaBattle");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(850, 450);
+        setSize(950, 480);
         setLocationRelativeTo(null);
         setVisible(true);
         setResizable(false);
+        JPanel jp_status = new JPanel();
     }
 
     private void drawGameField() {
@@ -47,12 +48,13 @@ public class SeaBattle extends JFrame {
         });
       
         JMenuItem eMenuFileItemRestartGame = new JMenuItem("Новая игра");
-        eMenuFileItemRestartGame.setMnemonic(KeyEvent.VK_C);
+        eMenuFileItemRestartGame.setMnemonic(KeyEvent.VK_N);
         eMenuFileItemRestartGame.setToolTipText("Перезапуск игры");
         eMenuFileItemRestartGame.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
             	board.generateFileds();
-            	drawGameField();
+            	board.printBattleField();
+            	SeaBattleWindowsComponents.clearLog();
             }
 
         });
@@ -74,10 +76,16 @@ public class SeaBattle extends JFrame {
         menuBar.add(menuFile);
         menuBar.add(menuHelp);
         
+        
+        
+        //setContentPane(board);
+        
+        setJMenuBar(menuBar);
+        
         SeaBattleWindowsComponents.getStatusBar(board);
         
-        setContentPane(board);
-        setJMenuBar(menuBar);
+        //pack();
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 

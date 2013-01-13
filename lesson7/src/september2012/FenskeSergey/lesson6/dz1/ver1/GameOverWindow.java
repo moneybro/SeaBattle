@@ -11,12 +11,7 @@ public class GameOverWindow implements ActionListener, MouseListener {
     private JFrame frame;
 
     public void actionPerformed(ActionEvent e) {
-    	
-    	// хотел чтобы по кнопке закрытия окна, сразу перегенерировались игровые поля, но не выходит
-    	// приведенные примеры не работают, не могу сообразить конструкцию.
-    	//userFieldMap.regenerateForGame();
-    	//seaBattle.drawGameField();
-	   frame.dispose();
+    	   frame.dispose();
 	}
 
     
